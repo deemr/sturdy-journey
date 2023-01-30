@@ -1,0 +1,3 @@
+/Users/juzo/CLionProjects/kraken/cmake-build-debug/CMakeFiles/kraken.dir
+/Users/juzo/CLionProjects/kraken/cmake-build-debug/CMakeFiles/edit_cache.dir
+/Users/juzo/CLionProjects/kraken/cmake-build-debug/CMakeFiles/rebuild_cache.dir
