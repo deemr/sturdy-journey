@@ -1,26 +1,36 @@
 #include <iostream>
-#include <boost/asio.hpp>
-#include <boost/bind/bind.hpp>
-/* All the asio classes can be used by simply including the "asio.hpp" header file. */
+#include <curl/curl.h>
+#include <string>
+#include <json.hpp>
 
-void print(const boost::system::error_code& /*e*/){
-    std::cout << "Hello, world from print" << std::endl;
-}
-int main() {
-    /*
-     * All programs that use asio need to have at least one I/O execution context,
-     * such as an io_context or thread_pool object. An I/O execution context
-     * provides access to I/O functionality. We declare an object of type
-     * io_context first thing in the main function.
-    */
-    std::cout << "Blocking for 5 seconds..." << std::endl;
+using json = nlohmann::json;
 
-    boost::asio::io_context io;
-    boost::asio::steady_timer t(io, boost::asio::chrono::seconds(5));
-    t.async_wait(&print);
-    io.run();
+int main(){
+    auto c = curl_easy_init();
+    if (c) {
 
-    std::cout << "Hello, World!" << std::endl;
+        std::string res_data;
 
+        std::string resultBody { };
+        auto cb_write_data = [](char* ptr, size_t size, size_t nmemb, void* resultBody){
+            *(static_cast<std::string*>(resultBody)) += std::string {ptr, size * nmemb};
+            return size * nmemb;
+        };
+        curl_easy_setopt(c, CURLOPT_WRITEDATA, &resultBody);
+        curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, static_cast<size_t (*)(char*, size_t, size_t, void*)>(cb_write_data));
+        /* preparing requests */
+        curl_easy_setopt(c, CURLOPT_URL, "https://api.kraken.com/0/public/Depth?pair=XBTUSD");
+        curl_easy_setopt(c, CURLOPT_VERBOSE, 1L);
+        auto res = curl_easy_perform(c);
+        if (res != CURLE_OK) {
+            std::cerr << "Operation failed: " << curl_easy_strerror(res) << std::endl;
+        }
+        std::cout << "POST: " << std::endl;
+        std::cout << "RESULT BODY:\n" << resultBody << std::endl;
+        auto j1 = json::parse(resultBody);
+        std::cout << "JSON: \n" << j1["result"] << std::endl;
+
+        curl_easy_cleanup(c);
+    }
     return 0;
 }

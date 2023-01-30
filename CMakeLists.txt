@@ -1,8 +1,11 @@
 cmake_minimum_required(VERSION 3.24)
 project(kraken)
-
-set(CMAKE_CXX_STANDARD 17)
-
+find_package(CURL REQUIRED)
 add_executable(kraken main.cpp)
 
-include_directories(/opt/homebrew/Cellar/boost/1.81.0_1/include/)
+set(CMAKE_CXX_STANDARD 17)
+set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17") # enable C++17 standard
+
+
+target_link_libraries(kraken CURL::libcurl)
+
