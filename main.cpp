@@ -3,7 +3,13 @@
 #include <string>
 #include <json.hpp>
 
+#define PULSE_URL "https://api.kraken.com/0/public/Depth?pair=XBTUSD"
 using json = nlohmann::json;
+
+class [[maybe_unused]] Kraken {
+public:
+    Kraken() = default;
+};
 
 int main(){
     auto c = curl_easy_init();
@@ -19,17 +25,15 @@ int main(){
         curl_easy_setopt(c, CURLOPT_WRITEDATA, &resultBody);
         curl_easy_setopt(c, CURLOPT_WRITEFUNCTION, static_cast<size_t (*)(char*, size_t, size_t, void*)>(cb_write_data));
         /* preparing requests */
-        curl_easy_setopt(c, CURLOPT_URL, "https://api.kraken.com/0/public/Depth?pair=XBTUSD");
+        curl_easy_setopt(c, CURLOPT_URL, PULSE_URL);
         curl_easy_setopt(c, CURLOPT_VERBOSE, 1L);
         auto res = curl_easy_perform(c);
-        if (res != CURLE_OK) {
+        if (res != CURLE_OK)
             std::cerr << "Operation failed: " << curl_easy_strerror(res) << std::endl;
-        }
-        std::cout << "POST: " << std::endl;
-        std::cout << "RESULT BODY:\n" << resultBody << std::endl;
-        auto j1 = json::parse(resultBody);
-        std::cout << "JSON: \n" << j1["result"] << std::endl;
 
+        std::cout << "POST: " << std::endl;
+        auto j1 = json::parse(resultBody);
+        std::cout << j1.dump() << std::endl;
         curl_easy_cleanup(c);
     }
     return 0;
