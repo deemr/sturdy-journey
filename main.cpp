@@ -1,8 +1,11 @@
 #include <iostream>
 #include <boost/asio.hpp>
-
+#include <boost/bind/bind.hpp>
 /* All the asio classes can be used by simply including the "asio.hpp" header file. */
 
+void print(const boost::system::error_code& /*e*/){
+    std::cout << "Hello, world from print" << std::endl;
+}
 int main() {
     /*
      * All programs that use asio need to have at least one I/O execution context,
@@ -14,7 +17,8 @@ int main() {
 
     boost::asio::io_context io;
     boost::asio::steady_timer t(io, boost::asio::chrono::seconds(5));
-    t.wait();
+    t.async_wait(&print);
+    io.run();
 
     std::cout << "Hello, World!" << std::endl;
 
